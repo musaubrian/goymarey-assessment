@@ -1,6 +1,7 @@
 # Full-Stack Goymarey Assessment
 
 ## Frontend
+
 ### Setup
 ```sh
 cd frontend
@@ -9,5 +10,14 @@ pnpm start
 ```
 
 ### Choices
-Router: *Tanstack Router*
+
+1. Router: **[Tanstack Router](https://tanstack.com/router/latest/docs/framework/react/overview)**
 - Tanstack router provides typesafe file-based routing
+
+## Backend
+
+```sh
+cd backend
+pnpm install
+pnpm start
+```
