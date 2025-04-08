@@ -19,5 +19,16 @@ pnpm start
 ```sh
 cd backend
 pnpm install
-pnpm start
+pnpm dev
 ```
+
+### Choices
+
+Database Schema
+---
+- Post likes are a relation between the user and the post.
+This is helps ensuring a user can like a post only once.
+
+- IDs use cuids instead of uuids.
+Since they are going to be used mostly in urls it helps that they are shorter than uuids
+

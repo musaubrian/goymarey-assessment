@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// A user can have many followers and follows many other users
+// Making it a many-many relation between the User model
+// https://www.prisma.io/docs/orm/prisma-schema/data-model/relations/self-relations#many-to-many-self-relations
+model User {
+  id         String   @id @default(cuid())
+  username   String   @unique
+  email      String   @unique
+  password   String   @unique
+
+  posts      Post[]
+  createdAt  DateTime @default(now())
+
+  replies    Reply[]
+  likedPosts Post[]   @relation("PostLikes")
+  followedBy User[]   @relation("FollowRelation")
+  following  User[]   @relation("FollowRelation")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  text      String
+  userId    String
+  replies   Reply[]
+  draft     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  author    User     @relation(fields: [userId], references: [id])
+  likedBy   User[]   @relation("PostLikes")
+}
+
+model Reply {
+  id        String   @id @default(cuid())
+  text      String
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  author    User     @relation(fields: [userId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+}

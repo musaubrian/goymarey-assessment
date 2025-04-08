@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx --watch src/index.ts",
+    "db:gen": "prisma generate",
+    "db:push": "prisma migrate dev && prisma db push",
+    "dev": "tsx --env-file .env --watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -14,11 +16,13 @@
   "license": "ISC",
   "packageManager": "pnpm@10.7.0",
   "dependencies": {
+    "@prisma/client": "^6.5.0",
     "express": "^5.1.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^22.14.0",
+    "prisma": "^6.5.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   }
