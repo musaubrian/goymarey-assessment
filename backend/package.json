@@ -8,7 +8,7 @@
     "db:push": "prisma migrate dev && prisma db push",
     "dev": "tsx --env-file .env --watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
+    "start": "node dist/src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,13 +16,19 @@
   "license": "ISC",
   "packageManager": "pnpm@10.7.0",
   "dependencies": {
-    "@prisma/client": "^6.5.0",
-    "express": "^5.1.0"
+    "@node-rs/bcrypt": "^1.10.7",
+    "@prisma/client": "5.12.1",
+    "express": "^5.1.0",
+    "graphql": "^16.10.0",
+    "graphql-http": "^1.22.4",
+    "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^22.14.0",
-    "prisma": "^6.5.0",
+    "prisma": "5.12.1",
+    "ruru": "2.0.0-beta.22",
     "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   }
