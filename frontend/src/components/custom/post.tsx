@@ -1,20 +1,29 @@
+import { useRouter } from '@tanstack/react-router'
 import { LucideHeart, LucideMessageSquare } from 'lucide-react'
 
 export default function Post({
+  id,
   username,
   timePosted,
   text,
   likes,
   replies,
 }: {
+  id: string
   username: string
   timePosted: string
   text: string
   likes: number
   replies: number
 }) {
+  const router = useRouter()
   return (
-    <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/50 shadow-sm hover:shadow-md transition-all">
+    <div
+      onClick={() =>
+        router.navigate({ to: '/post/$postId', params: { postId: id } })
+      }
+      className="p-3 bg-white rounded-lg border border-slate-200/50 shadow-sm hover:shadow-md transition-all cursor-pointer my-2"
+    >
       <div className="inline-flex w-full items-center gap-3">
         <div className="flex flex-col">
           <span className="lowercase text-slate-700 font-semibold">
