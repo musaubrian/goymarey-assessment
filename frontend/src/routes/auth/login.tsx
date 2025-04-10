@@ -1,4 +1,6 @@
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -11,7 +13,7 @@ function RouteComponent() {
   const [password, setPassword] = useState('')
   return (
     <div className="bg-slate-100 h-svh flex flex-col items-center justify-center p-2">
-      <Card className="w-full md:w-3/6">
+      <Card className="w-full md:w-2/6">
         <CardHeader>
           <h1 className="text-center text-2xl text-slate-700 font-semibold">
             Login
@@ -24,14 +26,18 @@ function RouteComponent() {
           >
             <div className="flex flex-col">
               <label className="text-slate-500">username</label>
-              <input
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 placeholder="@yeff"
                 className="p-2 text-lg border border-slate-200 rounded-lg"
               />
             </div>
             <div className="flex flex-col">
               <label className="text-slate-500">password</label>
-              <input
+              <Input
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 type="password"
                 placeholder="supersecrepassword"
                 className="p-2 text-lg border border-slate-200 rounded-lg"
@@ -46,12 +52,12 @@ function RouteComponent() {
                 Register
               </Link>
             </span>
-            <button
+            <Button
               type="submit"
               className="bg-sky-500 p-2 rounded-lg text-lg mt-3 font-semibold text-slate-100 hover:bg-sky-500/80 transition-all"
             >
               Login
-            </button>
+            </Button>
           </form>
         </CardContent>
       </Card>
