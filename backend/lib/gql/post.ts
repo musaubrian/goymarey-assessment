@@ -57,7 +57,7 @@ const postQueries = {
       }),
   },
 
-  myPosts: {
+  userPosts: {
     type: new GraphQLList(Post),
     args: { userId: { type: new GraphQLNonNull(GraphQLID) } },
     resolve: async (_: any, { userId }: { userId: string }) => {
@@ -85,16 +85,16 @@ const postQueries = {
         likeCount: post.likedBy.length,
       }))
     },
+  },
 
-    post: {
-      type: new GraphQLNonNull(Post),
-      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-      resolve: async (_: any, { id }: { id: string }) =>
-        await prisma.post.findFirst({
-          where: { id },
-          include: { author: true, replies: true },
-        }),
-    },
+  singlePost: {
+    type: new GraphQLNonNull(Post),
+    args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+    resolve: async (_: any, { id }: { id: string }) =>
+      await prisma.post.findFirst({
+        where: { id },
+        include: { author: true, replies: true },
+      }),
   },
 
   myDrafts: {
@@ -142,12 +142,24 @@ const postMutations = {
       }
     },
   },
+
+  publishDraft: {
+    type: GraphQLBoolean,
+    args: { postId: { type: new GraphQLNonNull(GraphQLID) } },
+    resolve: async (_: any, { postId }: { postId: string }) => {
+      await prisma.post.update({
+        where: { id: postId },
+        data: { draft: false },
+      })
+    },
+  },
+
+  // TODO: ensure deleting only your own posts
   deletePost: {
     type: GraphQLBoolean,
     args: { postId: { type: new GraphQLNonNull(GraphQLID) } },
     resolve: async (_: any, { postId }: { postId: string }) => {
-      postId
-      return false
+      await prisma.post.delete({ where: { id: postId } })
     },
   },
 }
