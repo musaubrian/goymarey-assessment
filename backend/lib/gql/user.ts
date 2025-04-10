@@ -1,4 +1,5 @@
 import {
+  GraphQLBoolean,
   GraphQLID,
   GraphQLList,
   GraphQLNonNull,
@@ -104,6 +105,28 @@ const userMutations = {
           createdAt: user.createdAt,
         },
       }
+    },
+  },
+
+  // TODO: implement follow n unfollow
+  followUser: {
+    type: GraphQLBoolean,
+    args: {
+      userId: { type: new GraphQLNonNull(GraphQLID) },
+    },
+    resolve: async (_: any, { userId }: { userId: string }) => {
+      _ = userId
+      false
+    },
+  },
+  unfollowUser: {
+    type: GraphQLBoolean,
+    args: {
+      userId: { type: new GraphQLNonNull(GraphQLID) },
+    },
+    resolve: async (_: any, { userId }: { userId: string }) => {
+      _ = userId
+      false
     },
   },
 }

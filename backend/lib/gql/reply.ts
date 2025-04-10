@@ -44,6 +44,7 @@ const replyMutations = {
       })
     },
   },
+  // TODO: ensure deleting only your own replies
   deleteReply: {
     type: GraphQLBoolean,
     args: {
