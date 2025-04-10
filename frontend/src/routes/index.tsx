@@ -1,48 +1,71 @@
+import Header from '@/components/custom/header'
 import Post from '@/components/custom/post'
-import { Dialog, DialogHeader } from '@/components/ui/dialog'
-import { DialogContent, DialogTrigger } from '@radix-ui/react-dialog'
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { LucidePen } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Textarea } from '@/components/ui/textarea'
+import { createFileRoute } from '@tanstack/react-router'
+import { LucideGitPullRequestDraft, LucidePen, LucideSend } from 'lucide-react'
+import { useState } from 'react'
 
 export const Route = createFileRoute('/')({
   component: App,
 })
 
 function App() {
+  const [newPost, setNewPost] = useState('')
   return (
     <div className="h-svh flex flex-col items-center p-3 bg-slate-100 gap-3">
-      <header className="min-h-14 w-11/12 md:w-3/6 bg-white/20 backdrop-blur-sm shadow-md rounded-xl inline-flex items-center justify-between p-3">
-        <div>Goymarey Feed</div>
-        <div>
-          <Link
-            to="/"
-            className="bg-sky-500 hover:bg-sky-500/70 transition-all text-slate-50 p-3 rounded-lg font-semibold"
-          >
-            Sign In
-          </Link>
-        </div>
-      </header>
-      <main className="h-svh w-full md:w-3/6 flex flex-col gap-2">
+      <Header />
+      <main className="w-full md:w-3/6 flex flex-col gap-2">
         <Dialog>
           <DialogTrigger asChild>
-            <button className="bg-blue-400 w-14 h-14 rounded-xl flex items-center justify-center">
-              <LucidePen />
-            </button>
+            <Button
+              variant={'ghost'}
+              className="w-full bg-slate-50 border border-slate-200 hover:bg-white hover:border-white hover:rounded-full inline-flex items-center justify-start transition-all text-slate-700 text-lg p-5"
+            >
+              What's up?
+            </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
-              <h1>Well hello there</h1>
-            </DialogHeader>
+            <div className="p-4">
+              <Textarea
+                placeholder="Scream into the void..."
+                value={newPost}
+                onChange={(e) => setNewPost(e.target.value)}
+                className="resize-none min-h-[100px] border-none focus-visible:ring-0 p-0 shadow-none"
+              />
+
+              <div className="flex justify-end items-center mt-3 gap-2 pt-3 border-t">
+                <Button
+                  variant={'ghost'}
+                  disabled={!newPost.trim()}
+                  className="bg-sky-100 hover:bg-sky-200"
+                >
+                  <LucideGitPullRequestDraft />
+                  Save draft
+                </Button>
+                <Button
+                  disabled={!newPost.trim()}
+                  className="bg-sky-600 hover:bg-sky-700"
+                >
+                  <LucideSend />
+                  Post
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
-
-        <Post
-          username="John"
-          timePosted="2hrs ago"
-          text="Just discovered a new pattern for handling async React state updates and it's been a game-changer for my workflow. Anyone else using this approach?"
-          replies={10}
-          likes={10}
-        />
+        <ScrollArea className="h-[85svh]">
+          <Post
+            id={'2'}
+            username="John"
+            timePosted="2hrs ago"
+            text="Just discovered a new pattern for handling async React state updates and it's been a game-changer for my workflow. Anyone else using this approach?"
+            replies={10}
+            likes={10}
+          />
+        </ScrollArea>
       </main>
     </div>
   )
