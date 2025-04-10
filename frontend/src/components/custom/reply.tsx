@@ -1,10 +1,8 @@
 export default function Reply({
-  id,
   username,
   timePosted,
   text,
 }: {
-  id: string
   username: string
   timePosted: string
   text: string
