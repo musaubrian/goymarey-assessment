@@ -14,6 +14,8 @@ export const Route = createFileRoute('/user/$userId')({
 
 function RouteComponent() {
   const { userId } = Route.useParams()
+  console.log(userId)
+
   return (
     <div className="h-svh bg-slate-100 flex flex-col items-center p-2">
       <Header />

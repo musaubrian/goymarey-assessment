@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { createFileRoute } from '@tanstack/react-router'
-import { LucideGitPullRequestDraft, LucidePen, LucideSend } from 'lucide-react'
+import { LucideGitPullRequestDraft, LucideSend } from 'lucide-react'
 import { useState } from 'react'
 
 export const Route = createFileRoute('/')({
