@@ -6,7 +6,7 @@ export default function Header() {
       <div>Goymarey Feed</div>
       <div>
         <Link
-          to="/"
+          to="/auth/login"
           className="bg-sky-600 hover:bg-sky-500/70 transition-all text-slate-50 p-3 rounded-lg font-semibold"
         >
           Sign In
