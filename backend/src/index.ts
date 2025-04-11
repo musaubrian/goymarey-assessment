@@ -3,11 +3,18 @@ import { createHandler } from 'graphql-http/lib/use/express'
 import { schema } from '../lib/gql/schema'
 import { ruruHTML } from 'ruru/server'
 import jwt from 'jsonwebtoken'
+import cors from 'cors'
 
 const app = express()
 const PORT = process.env.PORT || 3030
 
 app.use(express.json())
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  })
+)
 app.get('/explorer', (_req, res) => {
   res.type('html')
   res.end(ruruHTML({ endpoint: '/graphql' }))
