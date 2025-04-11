@@ -6,6 +6,7 @@ import {
   GraphQLString,
 } from 'graphql'
 import { prisma } from '../db'
+import { IUser } from '../types/userContext'
 
 const Reply = new GraphQLObjectType({
   name: 'PostReply',
@@ -44,15 +45,19 @@ const replyMutations = {
       })
     },
   },
-  // TODO: ensure deleting only your own replies
   deleteReply: {
     type: GraphQLBoolean,
     args: {
       id: { type: new GraphQLNonNull(GraphQLID) },
     },
-    resolve: async (_: any, { id }: { id: string }, context: any) => {
+    resolve: async (
+      _: any,
+      { id }: { id: string },
+      context: { user: IUser | null }
+    ) => {
+      if (!context.user) throw new Error('Authentication required')
       await prisma.reply.delete({
-        where: { id },
+        where: { id, userId: context.user.id },
       })
     },
   },

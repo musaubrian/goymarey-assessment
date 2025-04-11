@@ -9,6 +9,7 @@ import {
 import { prisma } from '../db'
 import { compare, hashSync } from '@node-rs/bcrypt'
 import jwt from 'jsonwebtoken'
+import { IUser } from '../types/userContext'
 
 const JWT_SECRET = process.env.JWT_SECRET!
 
@@ -65,7 +66,7 @@ const userMutations = {
         data: { email: email, username: username, password: hashedPwd },
       })
 
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '2h' })
+      const token = jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1d' })
       return {
         token,
         user: {
@@ -92,9 +93,13 @@ const userMutations = {
       if (!user || !(await compare(password, user.password))) {
         throw new Error('Invalid Credentials')
       }
-      const token = jwt.sign({ id: user.id }, JWT_SECRET, {
-        expiresIn: '2h',
-      })
+      const token = jwt.sign(
+        { id: user.id, username: user.username },
+        JWT_SECRET,
+        {
+          expiresIn: '1d',
+        }
+      )
 
       return {
         token,
@@ -108,25 +113,71 @@ const userMutations = {
     },
   },
 
-  // TODO: implement follow n unfollow
   followUser: {
     type: GraphQLBoolean,
     args: {
       userId: { type: new GraphQLNonNull(GraphQLID) },
     },
-    resolve: async (_: any, { userId }: { userId: string }) => {
-      _ = userId
-      false
+    resolve: async (
+      _: any,
+      { userId }: { userId: string },
+      context: { user: IUser | null }
+    ) => {
+      if (!context.user) {
+        throw new Error('Authentication required')
+      }
+
+      if (context.user.id === userId) {
+        throw new Error('Cannot follow yourself')
+      }
+
+      try {
+        await prisma.user.update({
+          where: { id: context.user.id },
+          data: {
+            following: {
+              connect: { id: userId },
+            },
+          },
+        })
+
+        return true
+      } catch (error) {
+        console.error('Error following user:', error)
+        throw new Error('Failed to follow user')
+      }
     },
   },
+
   unfollowUser: {
     type: GraphQLBoolean,
     args: {
       userId: { type: new GraphQLNonNull(GraphQLID) },
     },
-    resolve: async (_: any, { userId }: { userId: string }) => {
-      _ = userId
-      false
+    resolve: async (
+      _: any,
+      { userId }: { userId: string },
+      context: { user: IUser | null }
+    ) => {
+      if (!context.user) {
+        throw new Error('Authentication required')
+      }
+
+      try {
+        await prisma.user.update({
+          where: { id: context.user.id },
+          data: {
+            following: {
+              disconnect: { id: userId },
+            },
+          },
+        })
+
+        return true
+      } catch (error) {
+        console.error('Error unfollowing user:', error)
+        throw new Error('Failed to unfollow user')
+      }
     },
   },
 }

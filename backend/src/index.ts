@@ -1,9 +1,10 @@
-import express, { NextFunction, Request, Response } from 'express'
+import express from 'express'
 import { createHandler } from 'graphql-http/lib/use/express'
 import { schema } from '../lib/gql/schema'
 import { ruruHTML } from 'ruru/server'
 import jwt from 'jsonwebtoken'
 import cors from 'cors'
+import { IUser } from '../lib/types/userContext'
 
 const app = express()
 const PORT = process.env.PORT || 3030
@@ -15,38 +16,34 @@ app.use(
     credentials: true,
   })
 )
+
 app.get('/explorer', (_req, res) => {
   res.type('html')
   res.end(ruruHTML({ endpoint: '/graphql' }))
 })
 
-const authMiddleWare = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(' ')[1]
-  if (!token) {
-    // @ts-expect-error
-    req.user = null
-    return next()
-  }
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
-      id: string
-      username: string
-      createdAt: string
-    }
-
-    // @ts-expect-error
-    req.user = decoded
-    next()
-  } catch (e) {
-    res.status(401).json({ error: 'Invalid token' })
-  }
-}
-
-app.all(
-  '/graphql',
-  createHandler({
+app.all('/graphql', (req, res) => {
+  const handler = createHandler({
     schema: schema,
-    // context: ({ req }) => ({ user: (req as any).user }),
+    context: () => {
+      const authHeader = req.headers.authorization
+      const token = authHeader?.split(' ')[1]
+
+      let user = null
+      if (token) {
+        try {
+          user = jwt.verify(token, process.env.JWT_SECRET!) as IUser
+          console.log('Auth successful, user:', user.username)
+        } catch (e) {
+          console.error('Token verification failed:', e)
+        }
+      }
+
+      return { user }
+    },
   })
-)
+
+  handler(req, res)
+})
+
 app.listen(PORT, () => console.log(`Server running at :${PORT}`))

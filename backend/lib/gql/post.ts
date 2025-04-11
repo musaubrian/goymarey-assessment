@@ -9,6 +9,7 @@ import {
 } from 'graphql'
 import { POST_LIMIT, prisma } from '../db'
 import { Reply } from './reply'
+import { IUser } from '../types/userContext'
 
 const Author = new GraphQLObjectType({
   name: 'Author',
@@ -26,7 +27,7 @@ const Post = new GraphQLObjectType({
     draft: { type: GraphQLBoolean },
     createdAt: { type: GraphQLString },
     author: { type: Author },
-    replies: { type: Reply },
+    replies: { type: new GraphQLList(Reply) },
     replyCount: { type: GraphQLInt },
     likeCount: { type: GraphQLInt },
   },
@@ -44,6 +45,9 @@ const postQueries = {
           author: true,
           replies: { select: { id: true } },
           likedBy: { select: { id: true } },
+        },
+        orderBy: {
+          createdAt: 'desc',
         },
         take: POST_LIMIT,
       }),
@@ -67,6 +71,7 @@ const postQueries = {
       return posts.map((post) => ({
         id: post.id,
         text: post.text,
+        draft: post.draft,
         createdAt: post.createdAt.toISOString(),
         author: {
           id: post.author.id,
@@ -99,10 +104,12 @@ const postMutations = {
     resolve: async (
       _: any,
       { text, draft }: { text: string; draft: boolean },
-      context: any
+      context: { user: IUser | null }
     ) => {
-      // gotten from the context
-      const authorId = context?.user.id as string
+      if (!context.user) {
+        throw new Error('Authentication required')
+      }
+      const authorId = context.user.id
 
       const createdPost = await prisma.post.create({
         data: {
@@ -132,7 +139,14 @@ const postMutations = {
   publishDraft: {
     type: GraphQLBoolean,
     args: { postId: { type: new GraphQLNonNull(GraphQLID) } },
-    resolve: async (_: any, { postId }: { postId: string }) => {
+    resolve: async (
+      _: any,
+      { postId }: { postId: string },
+      context: { user: IUser | null }
+    ) => {
+      if (!context.user) {
+        throw new Error('Authentication required')
+      }
       await prisma.post.update({
         where: { id: postId },
         data: { draft: false },
@@ -140,12 +154,72 @@ const postMutations = {
     },
   },
 
-  // TODO: ensure deleting only your own posts
+  likePost: {
+    type: GraphQLBoolean,
+    args: { postId: { type: new GraphQLNonNull(GraphQLID) } },
+    resolve: async (
+      _: any,
+      { postId }: { postId: string },
+      context: { user: IUser | null }
+    ) => {
+      if (!context.user) {
+        throw new Error('Authentication required')
+      }
+      const userId = context.user.id
+      const post = await prisma.post.findUnique({
+        where: { id: postId },
+      })
+
+      if (!post) {
+        throw new Error('Post not found')
+      }
+
+      // Check if the user has already liked this post
+      const isLiked = await prisma.post.findUnique({
+        where: { id: postId },
+        select: { likedBy: { where: { id: userId } } },
+      })
+
+      if (isLiked.likedBy.length > 0) {
+        // User already liked the post, so unlike it
+        await prisma.post.update({
+          where: { id: postId },
+          data: {
+            likedBy: {
+              disconnect: { id: userId },
+            },
+          },
+        })
+        return false // Returning false to indicate it was unliked
+      } else {
+        // User has not liked the post yet, so like it
+        await prisma.post.update({
+          where: { id: postId },
+          data: {
+            likedBy: {
+              connect: { id: userId },
+            },
+          },
+        })
+        return true // Returning true to indicate the post was liked
+      }
+    },
+  },
+
   deletePost: {
     type: GraphQLBoolean,
     args: { postId: { type: new GraphQLNonNull(GraphQLID) } },
-    resolve: async (_: any, { postId }: { postId: string }) => {
-      await prisma.post.delete({ where: { id: postId } })
+    resolve: async (
+      _: any,
+      { postId }: { postId: string },
+      context: { user: IUser | null }
+    ) => {
+      if (!context.user) {
+        throw new Error('Authentication required')
+      }
+      await prisma.post.delete({
+        where: { id: postId, userId: context.user.id },
+      })
     },
   },
 }
