@@ -92,14 +92,22 @@ const postQueries = {
 const postMutations = {
   createPost: {
     type: new GraphQLNonNull(Post),
-    args: { text: { type: new GraphQLNonNull(GraphQLString) } },
-    resolve: async (_: any, { text }: { text: string }, context: any) => {
+    args: {
+      text: { type: new GraphQLNonNull(GraphQLString) },
+      draft: { type: new GraphQLNonNull(GraphQLBoolean) },
+    },
+    resolve: async (
+      _: any,
+      { text, draft }: { text: string; draft: boolean },
+      context: any
+    ) => {
       // gotten from the context
       const authorId = context?.user.id as string
 
       const createdPost = await prisma.post.create({
         data: {
           text: text,
+          draft: draft,
           author: {
             connect: { id: authorId },
           },
