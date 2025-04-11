@@ -6,14 +6,28 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Textarea } from '@/components/ui/textarea'
 import { createFileRoute } from '@tanstack/react-router'
 import { LucideGitPullRequestDraft, LucideSend } from 'lucide-react'
+import { request, gql } from 'graphql-request'
 import { useState } from 'react'
+import { GQL_URL } from '@/lib/constants'
 
 export const Route = createFileRoute('/')({
   component: App,
 })
 
+const allPosts = gql`
+  query {
+    allPosts {
+      id
+      text
+      createdAt
+    }
+  }
+`
+
 function App() {
   const [newPost, setNewPost] = useState('')
+  request(GQL_URL, allPosts).then((data) => console.log('results? ', data))
+
   return (
     <div className="h-svh flex flex-col items-center p-3 bg-slate-100 gap-3">
       <Header />

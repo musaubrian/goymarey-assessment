@@ -1,1 +1,1 @@
-export const SCHEMA_URL = import.meta.env.VITE_SCHEMA_URL
+export const GQL_URL = import.meta.env.VITE_GRAPHQL_URL as string
