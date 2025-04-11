@@ -39,6 +39,7 @@ function RouteComponent() {
     const { token, user } = res.data.loginUser
     localStorage.setItem('authToken', token)
     localStorage.setItem('userId', user.id)
+
     router.navigate({ to: '/' })
   }
   return (
