@@ -7,13 +7,27 @@ import { Textarea } from '@/components/ui/textarea'
 import { createFileRoute } from '@tanstack/react-router'
 import { LucideGitPullRequestDraft, LucideSend } from 'lucide-react'
 import { useState } from 'react'
+import { gql, useQuery } from '@apollo/client'
+import { Loading as LoadingCard } from '@/components/custom/loading'
+import { ErrorCard } from '@/components/custom/error'
 
 export const Route = createFileRoute('/')({
   component: App,
 })
 
+const GET_FEED = gql`
+  query GetPosts {
+    allPosts {
+      id
+      createdAt
+    }
+  }
+`
+
 function App() {
   const [newPost, setNewPost] = useState('')
+  const { loading, error, data } = useQuery(GET_FEED)
+
   return (
     <div className="h-svh flex flex-col items-center p-3 bg-slate-100 gap-3">
       <Header />
@@ -56,16 +70,20 @@ function App() {
             </div>
           </DialogContent>
         </Dialog>
-        <ScrollArea className="h-[85svh]">
-          <Post
-            id={'2'}
-            username="John"
-            timePosted="2hrs ago"
-            text="Just discovered a new pattern for handling async React state updates and it's been a game-changer for my workflow. Anyone else using this approach?"
-            replies={10}
-            likes={10}
-          />
-        </ScrollArea>
+        {loading ? <LoadingCard message={'Getting posts...'} /> : null}
+        {error ? <ErrorCard message={'Failed to fetch posts'} /> : null}
+        {!loading && !error ? (
+          <ScrollArea className="h-[85svh]">
+            <Post
+              id={'2'}
+              username="John"
+              timePosted="2hrs ago"
+              text="Just discovered a new pattern for handling async React state updates and it's been a game-changer for my workflow. Anyone else using this approach?"
+              replies={10}
+              likes={10}
+            />
+          </ScrollArea>
+        ) : null}
       </main>
     </div>
   )
