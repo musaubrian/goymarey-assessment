@@ -180,7 +180,7 @@ const postMutations = {
         select: { likedBy: { where: { id: userId } } },
       })
 
-      if (isLiked.likedBy.length > 0) {
+      if (isLiked && isLiked.likedBy.length > 0) {
         // User already liked the post, so unlike it
         await prisma.post.update({
           where: { id: postId },

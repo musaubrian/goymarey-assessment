@@ -33,7 +33,6 @@ app.all('/graphql', (req, res) => {
       if (token) {
         try {
           user = jwt.verify(token, process.env.JWT_SECRET!) as IUser
-          console.log('Auth successful, user:', user.username)
         } catch (e) {
           console.error('Token verification failed:', e)
         }
@@ -43,7 +42,7 @@ app.all('/graphql', (req, res) => {
     },
   })
 
-  handler(req, res)
+  handler(req, res, () => {})
 })
 
 app.listen(PORT, () => console.log(`Server running at :${PORT}`))
