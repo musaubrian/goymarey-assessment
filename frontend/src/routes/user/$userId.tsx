@@ -11,6 +11,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { LoadingCard } from '@/components/custom/LoadingCard'
 import { ErrorCard } from '@/components/custom/ErrorCard'
 import { EmptyState } from '@/components/custom/EmptyState'
+import type { IPost } from '@/lib/types'
 
 export const Route = createFileRoute('/user/$userId')({
   component: RouteComponent,
@@ -40,13 +41,12 @@ const GET_USER_POSTS_N_REPLIES = gql`
       author {
         username
       }
+      likeCount
       replies {
         id
         text
         createdAt
       }
-      replyCount
-      likeCount
     }
   }
 `
@@ -91,7 +91,7 @@ function RouteComponent() {
 
   const isLoading = loadingProfile || loadingPosts
   const isError = errorProfile || errorPosts
-  const allPosts = postsData?.userPosts || []
+  const allPosts = (postsData?.userPosts as IPost[]) || []
   const posts = allPosts.filter((p) => !p.draft)
 
   const isFollowing = profileData?.user?.followedBy?.some(
@@ -183,8 +183,8 @@ function RouteComponent() {
                       username={post.author.username}
                       timePosted={post.createdAt}
                       text={post.text}
-                      replies={post.replyCount}
-                      likes={post.likeCount}
+                      replies={post.replies?.length || 0}
+                      likes={post.likeCount || 0}
                     />
                   ))
                 ) : (
@@ -194,10 +194,12 @@ function RouteComponent() {
             </TabsContent>
             <TabsContent value="replies">
               <ScrollArea className="h-[70svh]">
-                {posts.replies.length > 0 ? (
-                  posts.replies.map((reply) => (
-                    <Reply key={reply.id} text={reply.text} />
-                  ))
+                {posts.flatMap((post) => post.replies || []).length > 0 ? (
+                  posts
+                    .flatMap(
+                      (post) => post.replies?.map((r) => ({ ...r, post })) || []
+                    )
+                    .map((reply) => <Reply key={reply.id} text={reply.text} />)
                 ) : (
                   <EmptyState message="No replies yet" />
                 )}

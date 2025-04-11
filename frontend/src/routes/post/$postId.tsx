@@ -7,6 +7,7 @@ import { gql, useQuery } from '@apollo/client'
 import { LoadingCard } from '@/components/custom/LoadingCard'
 import { ErrorCard } from '@/components/custom/ErrorCard'
 import { EmptyState } from '@/components/custom/EmptyState'
+import type { IPost } from '@/lib/types'
 
 export const Route = createFileRoute('/post/$postId')({
   component: RouteComponent,
@@ -23,6 +24,7 @@ const GET_POST = gql`
         id
         username
       }
+      likeCount
       replies {
         id
         text
@@ -31,29 +33,11 @@ const GET_POST = gql`
   }
 `
 
-type PostType = {
-  id: string
-  text: string
-  draft: boolean
-  createdAt: string
-  author: {
-    id: string
-    username: string
-  }
-  replies: {
-    id: string
-    text: string
-  }[]
-}
-
 function RouteComponent() {
-  const { postId } = Route.useParams<{ postId: string }>()
-  const { loading, error, data } = useQuery<{ singlePost: PostType }>(
-    GET_POST,
-    {
-      variables: { id: postId },
-    }
-  )
+  const { postId } = Route.useParams()
+  const { loading, error, data } = useQuery<{ singlePost: IPost }>(GET_POST, {
+    variables: { id: postId },
+  })
 
   const post = data?.singlePost
 
@@ -70,14 +54,14 @@ function RouteComponent() {
               username={post.author.username}
               timePosted={new Date(post.createdAt).toLocaleString()}
               text={post.text}
-              replies={post.replies.length}
-              likes={0} // You can replace this with actual likes if available
+              replies={post.replies?.length || 0}
+              likes={post.likeCount}
             />
             <h1 className="text-lg font-semibold text-slate-700 mt-2">
               Replies
             </h1>
             <ScrollArea className="h-[65svh] my-1">
-              {post.replies.length > 0 ? (
+              {post.replies && post.replies.length > 0 ? (
                 post.replies.map((reply) => (
                   <Reply key={reply.id} text={reply.text} />
                 ))

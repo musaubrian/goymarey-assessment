@@ -16,6 +16,7 @@ import { gql, useMutation, useQuery } from '@apollo/client'
 import { LoadingCard as LoadingCard } from '@/components/custom/LoadingCard'
 import { ErrorCard } from '@/components/custom/ErrorCard'
 import { EmptyState } from '@/components/custom/EmptyState'
+import type { IPost } from '@/lib/types'
 
 export const Route = createFileRoute('/')({
   component: App,
@@ -29,8 +30,10 @@ const GET_FEED = gql`
       author {
         username
       }
+      replies {
+        id
+      }
       likeCount
-      replyCount
       createdAt
     }
   }
@@ -45,7 +48,7 @@ const CREATE_POST = gql`
 
 function App() {
   const [newPost, setNewPost] = useState('')
-  const { loading, error, data } = useQuery(GET_FEED)
+  const { loading, error, data } = useQuery<{ allPosts: IPost[] }>(GET_FEED)
   const [createPost, result] = useMutation(CREATE_POST)
   const publish = () => {
     if (newPost.trim())
@@ -107,7 +110,7 @@ function App() {
         {error ? <ErrorCard message={'Failed to fetch posts'} /> : null}
         {!loading && !error ? (
           <ScrollArea className="h-[85svh]">
-            {data.allPosts.length > 0 ? (
+            {data && data.allPosts.length > 0 ? (
               data.allPosts.map((post) => (
                 <Post
                   key={post.id}
@@ -115,8 +118,8 @@ function App() {
                   username={post.author.username}
                   timePosted={post.createdAt}
                   text={post.text}
-                  replies={post.replyCount}
-                  likes={post.likeCount}
+                  replies={post.replies?.length || 0}
+                  likes={post.likeCount || 0}
                 />
               ))
             ) : (

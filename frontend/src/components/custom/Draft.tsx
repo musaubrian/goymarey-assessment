@@ -23,14 +23,14 @@ export default function Draft({
   timePosted: string
   text: string
 }) {
-  const [deletePost, deletePostResult] = useMutation(DELETE_POST)
-  const [publishDraft, publishDraftResult] = useMutation(PUBLISH_DRAFT)
+  const [deletePost] = useMutation(DELETE_POST)
+  const [publishDraft] = useMutation(PUBLISH_DRAFT)
 
   const deletepost = async () => {
-    const res = await deletePost({ variables: { postId: id } })
+    await deletePost({ variables: { postId: id } })
   }
   const publish = async () => {
-    const res = await publishDraft({ variables: { postId: id } })
+    await publishDraft({ variables: { postId: id } })
   }
   return (
     <div className="p-3 bg-white rounded-lg border border-slate-200/50 shadow-sm hover:shadow-md transition-all my-2">
