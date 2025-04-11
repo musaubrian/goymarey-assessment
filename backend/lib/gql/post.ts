@@ -10,15 +10,6 @@ import {
 import { POST_LIMIT, prisma } from '../db'
 import { Reply } from './reply'
 
-const DraftPosts = new GraphQLObjectType({
-  name: 'DraftPosts',
-  fields: {
-    id: { type: GraphQLID },
-    text: { type: GraphQLString },
-    createdAt: { type: GraphQLString },
-  },
-})
-
 const Author = new GraphQLObjectType({
   name: 'Author',
   fields: {
@@ -32,6 +23,7 @@ const Post = new GraphQLObjectType({
   fields: {
     id: { type: GraphQLID },
     text: { type: GraphQLString },
+    draft: { type: GraphQLBoolean },
     createdAt: { type: GraphQLString },
     author: { type: Author },
     replies: { type: Reply },
@@ -64,7 +56,6 @@ const postQueries = {
       const posts = await prisma.post.findMany({
         where: {
           userId,
-          draft: { equals: false },
         },
         include: {
           author: true,
@@ -94,19 +85,6 @@ const postQueries = {
       await prisma.post.findFirst({
         where: { id },
         include: { author: true, replies: true },
-      }),
-  },
-
-  myDrafts: {
-    type: new GraphQLList(DraftPosts),
-    args: { userId: { type: new GraphQLNonNull(GraphQLID) } },
-    resolve: async (_: any, { userId }: { userId: string }) =>
-      await prisma.post.findMany({
-        where: {
-          userId,
-          draft: { equals: true },
-        },
-        include: { author: true },
       }),
   },
 }
@@ -164,4 +142,4 @@ const postMutations = {
   },
 }
 
-export { Post, DraftPosts, Author, postQueries, postMutations }
+export { Post, Author, postQueries, postMutations }
