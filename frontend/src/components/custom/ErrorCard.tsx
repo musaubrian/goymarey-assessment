@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription } from '../ui/card'
 
 export function ErrorCard({ message }: { message: string }) {
   return (
-    <Card className="bg-red-200/50">
+    <Card className="bg-red-200/50 mt-2">
       <CardDescription className="hidden">
         Error card with the message: "{message}"
       </CardDescription>

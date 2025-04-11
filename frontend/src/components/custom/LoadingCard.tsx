@@ -1,9 +1,9 @@
 import { LucideLoader } from 'lucide-react'
 import { Card, CardContent, CardDescription } from '../ui/card'
 
-export function Loading({ message }: { message: string }) {
+export function LoadingCard({ message }: { message: string }) {
   return (
-    <Card>
+    <Card className="mt-2">
       <CardDescription className="hidden">
         Loading card with the message: "{message}"
       </CardDescription>
